@@ -129,6 +129,18 @@ local function createUI(plr)
 	PratUI.Parent = plr.PlayerGui 
 end
 
+local function getReason(list, startIndex)
+	local str = ""
+
+	for i = startIndex, #list do 
+		str = str..list[i].." "
+	end
+end
+
+local function convertSecondsToDateString(seconds)
+	return os.date("%c", seconds)
+end
+
 plrs.PlayerAdded:Connect(function(plr)
 	plr.CharacterAdded:Connect(function(char)
 		createUI(plr)
@@ -142,14 +154,6 @@ end)
 ------------------------------------------------------
 ------------------ Commands Manager ------------------
 ------------------------------------------------------
-
-local function getReason(list, startIndex)
-	local str = ""
-	
-	for i = startIndex, #list do 
-		str = str..list[i].." "
-	end
-end
 
 rs.Run.OnServerEvent:Connect(function(plr, CmdText)
 	local args = CmdText:split(" ")
@@ -166,7 +170,31 @@ rs.Run.OnServerEvent:Connect(function(plr, CmdText)
 		end
 		
 		if target ~= nil then
-			target:kick(plr.Name.." - "..reason)
+			target:kick("[PRAT] Kick - "..reason)
+		end
+	elseif args[1] == "ban" and #args >= 3 then
+		local targetName = args[2]
+		local reason = getReason(args, 3)
+		local target = plrs:GetPlayerFromCharacter(workspace:FindFirstChild(targetName))
+
+		if target ~= nil then
+			target.DBPrat.isBanned.Value = true
+			target.DBPrat.ReasonBan.Value = reason
+			target:kick("[PRAT] Ban - "..reason)
+		end
+	elseif args[1] == "tempban" and #args >= 4 then
+		local targetName = args[2]
+		local currentTime = os.time()
+		local timeInDay = tonumber(args[3])
+		local reason = getReason(args, 4)
+		local target = plrs:GetPlayerFromCharacter(workspace:FindFirstChild(targetName))
+
+		if target ~= nil and timeInDay ~= nil then
+			local expirationTime = currentTime + (timeInDay * 24 * 60 * 60) -- convert days to seconds
+			target.DBPrat.isBanned.Value = true
+			target.DBPrat.ReasonBan.Value = reason
+			target.DBPrat.timeTempBan.Value = expirationTime
+			target:kick("[PRAT] Tempban Expiration Date:"..convertSecondsToDateString(expirationTime).." - "..reason)
 		end
 	end
 end)

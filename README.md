@@ -4,8 +4,8 @@ Admin Terminal to run commands on player or on yourself.
 
 Commands:
 - kick
-- ban (WIP)
-- tempban (WIP)
+- ban
+- tempban (you have to ban for days, not seconds or minutes for example)
 - serverbanner (WIP)
 - servermessage (WIP)
 - speed (WIP)
